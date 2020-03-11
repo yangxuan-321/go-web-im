@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func RegisterView()  {
+func RegisterView() {
 
 	// 1.解析template 得到一个模板的指针
 	// 满足 相应格式 的 都可以 被解析出来
@@ -20,7 +20,7 @@ func RegisterView()  {
 	}
 
 	// 循环拿到 template
-	for _, v := range tpl.Templates(){
+	for _, v := range tpl.Templates() {
 		// 这个地方的 Name， 就是 通过在 模板文件[html文件] 中 加入 {{define "xxx/xxx/xx.shtml"}} 拿到
 		tplname := v.Name()
 		http.HandleFunc(tplname, func(writer http.ResponseWriter, request *http.Request) {
@@ -32,7 +32,7 @@ func RegisterView()  {
 // 申明一个 指针型的 操作引擎
 var DbEngine *xorm.Engine
 
-func init()  {
+func init() {
 	driverName := "mysql"
 	dataSourceName := "root:root@(127.0.0.1:3306)/chat?charset=utf8"
 	DbEngine, err := xorm.NewEngine(driverName, dataSourceName)
@@ -55,6 +55,8 @@ func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", controller.UserLogin)
 	http.HandleFunc("/user/register", controller.UserRegister)
+	http.HandleFunc("/contact/addfriend", controller.Addfriend)
+	http.HandleFunc("/contact/loadfriend", controller.LoadFriendAndGroup)
 
 	// 提供静态资源 目录支持
 	// 第一个参数 / 代表 访问路径

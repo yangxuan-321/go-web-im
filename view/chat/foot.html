@@ -9,6 +9,9 @@
 
         })
     }
+    function userId(){
+        return util.parseQuery("id")
+    }
     var app=new Vue(
             {
                 el:"#pageapp",
@@ -102,12 +105,10 @@
                     if(!!user){
                         this.profile.avatar = user.avatar;
                         this.profile.nickname = user.nickname;
-
                         this.profile.memo = user.memo;
-                        var url="ws://"+location.host+"/chat?id="+userId()+"&token=" +user.token;
-                        this.webSocket=new WebSocket(url);
-                        this.initwebsocket()
                     }
+
+                    this.initwebsocket()
 
                 },
                 mounted:function(){
@@ -191,7 +192,7 @@
                         for(var id in res){
                             console.log("res[i]",id,res[id])
                             post(res[id],{},function(pkginfo){
-                                console.log("post res[i]",id,res[id],pkginfo)
+                                //console.log("post res[i]",id,res[id],pkginfo)
                                 var baseurl= config.baseurl+"/"+pkginfo.id+"/"
                                 for(var j in pkginfo.assets){
                                     pkginfo.assets[j] = baseurl+pkginfo.assets[j];
@@ -269,9 +270,10 @@
                         this.msgcontext.cmd = 11;
                     },
                     loaduserinfo:function(userid,cb){
+                        userid = ""+userid;
                         var userinfo = this.usermap[userid];
                         if(!userinfo){
-                            post("user/find",{id:userid},function(res){
+                            post("user/find",{id:parseInt(userid)},function(res){
                                 cb(res.data);
                                 this.usermap[userid] = res.data;
                             }.bind(this))
@@ -287,41 +289,56 @@
 
                     },
                     initwebsocket:function(){
+                        var url="ws://"+location.host+"/chat?id="+userId()+"&token=" +util.parseQuery("token");
+                        this.webSocket=new WebSocket(url);
+                        //消息处理
                         this.webSocket.onmessage = function(evt){
-                            this.onmessage(JSON.parse(evt.data));
+                            //{"data":"}",...}
+                            if(evt.data.indexOf("}")>-1){
+                                this.onmessage(JSON.parse(evt.data));
+                            }else{
+                                console.log("recv<=="+evt.data)
+                            }
                         }.bind(this)
+                        //关闭回调
                         this.webSocket.onclose=function (evt) {
                             console.log(evt.data)
                         }
+                        //出错回调
                         this.webSocket.onerror=function (evt) {
                             console.log(evt.data)
                         }
+                        /*{
+                            this.webSocket.send()
+                        }*/
                     },
                     sendmsg:function(){
 
                     },
                     loadfriends:function(){
                         var that = this;
-                        post("contact/friend",{userid:userId()},function(res){
+                        post("contact/loadfriend",{userid:userId()},function(res){
                             that.friends = res.rows ||[];
-                            var usermap = usermap;
+                            var usermap = this.usermap;
                             for(var i in res.rows){
-                                usermap[res.rows[i].id]=res.rows[i];
+                                var k = ""+res.rows[i].id
+                                usermap[k]=res.rows[i];
                             }
                             this.usermap = usermap;
                         }.bind(this))
                     },
                     loadcommunitys:function(){
                         var that = this;
-                        post("contact/community",{userid:userId()},function(res){
+                        post("contact/loadcommunity",{userid:userId()},function(res){
                             that.communitys = res.rows ||[];
                         })
                     },
                     addfriend:function(){
                         var that = this;
-                        mui.prompt('','请输入好友ID','加好友',['取消','确认'],function (e) {
+                        //prompt
+                        mui.prompt('','请输入好友账号','加好友',['取消','确认'],function (e) {
                             if (e.index == 1) {
-                                if (isNaN(e.value) || e.value <= 0) {
+                                if (!e.value) {
                                     mui.toast('格式错误');
                                 }else{
                                     //mui.toast(e.value);
@@ -331,13 +348,12 @@
                                 //mui.toast('您取消了入库');
                             }
                         },'div');
-                        document.querySelector('.mui-popup-input input').type = 'number';
+                        document.querySelector('.mui-popup-input input').type = 'text';
                     },
                     _addfriend:function(dstobj){
-                        var user = userInfo();
-
-                        post("user/addfriend",{dstid:dstobj,userid: user.id,pic:user.avatar,content:user.nickname,memo: "请求加你为好友"},function(res){
-                            if(res.code==200){
+                        var that = this
+                        post("contact/addfriend",{dstmobile:dstobj, userid: userId()},function(res){
+                            if(res.code==0){
                                 mui.toast("添加成功");
                                 that.loadfriends();
                             }else{
@@ -347,7 +363,7 @@
                     },
                     _joincomunity:function(dstobj){
                         var that = this;
-                        post("user/joincommunity",{dstid:dstobj},function(res){
+                        post("contact/joincommunity",{dstid:dstobj},function(res){
                             if(res.code==200){
                                 mui.toast("添加成功");
 
@@ -376,7 +392,7 @@
                     quit:function () {
                         sessionStorage.removeItem("userid")
                         sessionStorage.removeItem("userinfo")
-                        location.href="login.shtml"
+                        location.href="/user/login.shtml"
                     }
 
 

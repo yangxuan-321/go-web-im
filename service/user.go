@@ -1,6 +1,7 @@
 package service
 
 import (
+	"../dao"
 	"../model"
 	"../util"
 	"fmt"
@@ -11,8 +12,9 @@ import (
 )
 
 type UserService struct {
-
 }
+
+var userDao *dao.UserDao = &dao.UserDao{}
 
 /**
  * mobile - 手机
@@ -20,18 +22,17 @@ type UserService struct {
  * nickname - 昵称
  * avastar
  */
-func (*UserService) Register(mobile, plainpwd, niclname, avatar, sex string)(user model.User, err error){
+func (*UserService) Register(mobile, plainpwd, niclname, avatar, sex string) (model.User, error) {
 	// 检测手机号 是否存在
 	// 传入 用户 信息的 实例化 地址, 用于 存放返回数据
-	var userInfo *model.User = &model.User{}
-	_, err = DbEngine.Where("mobile = ? ", mobile).Get(userInfo)
-	if nil != err {
-		return *userInfo, err
+	userInfo, err_ := userDao.FindUserByMobile(mobile)
+	if nil != err_ {
+		return userInfo, err_
 	}
 
 	// 如果存在 则返回提示 已经注册
 	if userInfo.Id > 0 {
-		return *userInfo, errors.New("该手机号已经被注册过")
+		return userInfo, errors.New("该手机号已经被注册过")
 	}
 
 	// 否则 拼接 插入数据库
@@ -43,39 +44,36 @@ func (*UserService) Register(mobile, plainpwd, niclname, avatar, sex string)(use
 	userInfo.Sex = sex
 	userInfo.Createat = time.Now()
 	//token 可以是一个随机数
-	userInfo.Token = fmt.Sprintf("%08d",rand.Int31())
+	userInfo.Token = util.GetUUID()
 
-	total, err := DbEngine.InsertOne(userInfo)
+	total, err := userDao.InsertOne(&userInfo)
 	if nil != err || 0 == total {
 		log.Fatal("插入不成功")
 	}
 
 	// 返回新用户信息
-	return *userInfo, nil
+	return userInfo, nil
 }
 
-
-func (*UserService) Login(mobile, plainpwd string)(user model.User, err error){
+func (*UserService) Login(mobile, plainpwd string) (model.User, error) {
 	// 通过手机号查询用户
-	var userInfo *model.User = &model.User{}
-	DbEngine.Where("mobile = ?", mobile).Get(userInfo)
+	userInfo, err := userDao.FindUserByMobile(mobile)
 	if userInfo.Id == 0 {
-		return *userInfo, errors.New("用户不存在")
+		return userInfo, errors.New("用户不存在")
 	}
 
 	// 查询到了比对密码
 	if !util.ValidatePasswd(plainpwd, userInfo.Salt, userInfo.Passwd) {
-		return *userInfo, errors.New("密码不正确")
+		return userInfo, errors.New("密码不正确")
 	}
 
 	// 更新token
 	token := util.GetUUID()
-	(*userInfo).Token = token
-	updateCount, err := DbEngine.ID((*userInfo).Id).Cols("token").Update(userInfo)
+	userInfo.Token = token
+	updateCount, err := userDao.RefreshToken(&userInfo)
 	if err != nil || updateCount < 1 {
-		return *userInfo, errors.New("更新token失败:" + err.Error())
+		return userInfo, errors.New("更新token失败:" + err.Error())
 	}
 
-
-	return *userInfo, nil
+	return userInfo, nil
 }

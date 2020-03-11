@@ -62,9 +62,10 @@
                         mui.toast(res.msg)
                     }else{
                         var url = "/chat/index.shtml?id=" + res.data.id + "&token=" + res.data.token;
-                        console.log(url)
-                        //location.replace("//127.0.0.1/demo/index.shtml")
+                        // console.log(url)
                         mui.toast("登录成功,即将跳转")
+                        // replace 和 href相比 是不能 后退的
+                        location.replace(url)
                     }
                 })
             },

@@ -4,8 +4,6 @@ import (
 	"../model"
 	"../service"
 	"../util"
-	"fmt"
-	"math/rand"
 	"net/http"
 )
 
@@ -19,27 +17,27 @@ func UserLogin(writer http.ResponseWriter, request *http.Request) {
 
 	user, err := userService.Login(mobile, passwd)
 
-
 	if nil != err {
-		util.RespError(writer, -1, nil, "密码不正确")
-	}else {
-		util.RespSuccess(writer, 0, user, "密码正确")
+		util.RespError(writer, "密码不正确")
+	} else {
+		util.RespSuccess(writer, user, "密码正确")
 	}
 }
 
-func UserRegister(writer http.ResponseWriter, request *http.Request)  {
+func UserRegister(writer http.ResponseWriter, request *http.Request) {
 	// 1.如何获得参数
 	request.ParseForm()
 	mobile := request.PostForm.Get("mobile")
 	plainpwd := request.PostForm.Get("passwd")
-	niclname := fmt.Sprint("user%06d", rand.Int31())
-	avatar := ""
+	//niclname := fmt.Sprint("user%06d", rand.Int31())
+	nickname := util.RandNickname()
+	avatar := "/asset/images/" + util.RandAvatar()
 	sex := model.SEX_UNKNOW
 
-	user, err := userService.Register(mobile, plainpwd, niclname, avatar, sex)
+	user, err := userService.Register(mobile, plainpwd, nickname, avatar, sex)
 	if nil != err {
-		util.RespError(writer, -1, nil, err.Error())
-	}else {
-		util.RespSuccess(writer, 0, user, "")
+		util.RespError(writer, "注册失败:"+err.Error())
+	} else {
+		util.RespSuccess(writer, user, "注册成功")
 	}
 }

@@ -28,8 +28,8 @@
             </div>
         </form>
         <div class="mui-content-padded">
-            <button @click="login"  type="button"  class="mui-btn mui-btn-block mui-btn-primary">登录</button>
-            <div class="link-area"><a id='reg' href="register.shtml">注册账号</a> <span class="spliter">|</span> <a  id='forgetPassword'>忘记密码</a>
+            <button @click="login"  type="button"  class="mui-btn mui-btn-block mui-btn-primary">注册</button>
+            <div class="link-area"><a id='reg' href="login.shtml">账号登录</a> <span class="spliter">|</span> <a  id='forgetPassword'>忘记密码</a>
             </div>
         </div>
         <div class="mui-content-padded oauth-area">
@@ -51,18 +51,19 @@
             methods:{
                 login:function(){
                     //检测手机号是否正确
-                    console.log("login")
+                    console.log("register")
                     //检测密码是否为空
 
                     //网络请求
                     //封装了promis
-                    util.post("user/login",this.user).then(res=>{
+                    util.post("user/register", this.user).then(res=>{
                         console.log(res)
                         if(res.code!=0){
                             mui.toast(res.msg)
                         }else{
-                            //location.replace("//127.0.0.1/demo/index.shtml")
-                            mui.toast("登录成功,即将跳转")
+                            var url = "/chat/index.shtml?id=" + res.data.id + "&token=" + res.data.token;
+                            mui.toast("注册成功,即将跳转")
+                            location.replace(url)
                         }
                     })
                 },

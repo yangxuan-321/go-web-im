@@ -1,4 +1,4 @@
-package service
+package dao
 
 import (
 	"../model"
@@ -13,7 +13,7 @@ import (
 // 申明一个 指针型的 操作引擎
 var DbEngine *xorm.Engine
 
-func init()  {
+func init() {
 	driverName := "mysql"
 	dataSourceName := "root:root@(127.0.0.1:3306)/chat?charset=utf8"
 	var err error = errors.New("")
@@ -29,6 +29,6 @@ func init()  {
 	DbEngine.SetMaxOpenConns(2)
 
 	// 是否开启自动建表
-	DbEngine.Sync2(new(model.User))
+	DbEngine.Sync2(new(model.User), new(model.Community), new(model.ContactGroup), new(model.ContactUser))
 	fmt.Printf("init data base access engine ok!")
 }
