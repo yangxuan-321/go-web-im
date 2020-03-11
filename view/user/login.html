@@ -10,6 +10,7 @@
     <script src="/asset/plugins/mui/js/mui.js" ></script>
     <script src="/asset/js/vue.min.js" ></script>
     <script src="/asset/js/util.js" ></script>
+    <script src="/asset/js/store.js"></script>
 </head>
 <body>
 
@@ -62,6 +63,8 @@
                         mui.toast(res.msg)
                     }else{
                         var url = "/chat/index.shtml?id=" + res.data.id + "&token=" + res.data.token;
+                        // 存储 相关信息
+                        LocalStore.setTokenInfo({userId: res.data.id, token: res.data.token})
                         // console.log(url)
                         mui.toast("登录成功,即将跳转")
                         // replace 和 href相比 是不能 后退的

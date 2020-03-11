@@ -363,7 +363,7 @@
                     },
                     _joincomunity:function(dstobj){
                         var that = this;
-                        post("contact/joincommunity",{dstid:dstobj},function(res){
+                        post("contact/joincommunity",{dstid:dstobj, ownerid: LocalStore.getTokenInfo().userId},function(res){
                             if(res.code==200){
                                 mui.toast("添加成功");
 

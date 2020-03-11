@@ -10,6 +10,8 @@ type Community struct {
 	Ownerid int64 `xorm:"bigint(20)" form:"ownerid" json:"ownerid"`
 	//群logo
 	Icon string `xorm:"varchar(250)" form:"icon" json:"icon"`
+	//群类型
+	Type int `xorm:"bigint(20)" form:"type" json:"type"`
 	//描述
 	Memo string `xorm:"varchar(120)" form:"memo" json:"memo"`
 	//群创建时间

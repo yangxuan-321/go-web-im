@@ -57,8 +57,11 @@ func main() {
 	http.HandleFunc("/user/register", controller.UserRegister)
 	http.HandleFunc("/contact/addfriend", controller.Addfriend)
 	http.HandleFunc("/contact/loadfriend", controller.LoadFriendAndGroup)
+	http.HandleFunc("/contact/createcommunity", controller.CreateGroup)
+	http.HandleFunc("/contact/loadcommunity", controller.LoadCommunity)
+	http.HandleFunc("/contact/joincommunity", controller.JoinCommunity)
 
-	// 提供静态资源 目录支持
+	// 提供静态资源 目录支持interceptors
 	// 第一个参数 / 代表 访问路径
 	// 第二个参数 . 代表 当前目录
 	//http.Handle("/", http.FileServer(http.Dir(".")))

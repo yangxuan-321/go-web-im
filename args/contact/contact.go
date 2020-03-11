@@ -4,8 +4,14 @@ import (
 	"../../args"
 )
 
-type ContactArg struct {
+type ContactUserArg struct {
 	args.PageArg
 	Userid    int64  `json:"userid" form:"userid"`
 	Dstmobile string `json:"dstmobile" form:"dstmobile"`
+}
+
+type ContactGroupArg struct {
+	args.PageArg
+	Userid int64  `json:"userid" form:"ownerid"`
+	Dstid  string `json:"dstid" form:"dstid"`
 }
