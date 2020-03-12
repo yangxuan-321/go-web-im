@@ -61,6 +61,8 @@ func main() {
 	http.HandleFunc("/contact/loadcommunity", controller.LoadCommunity)
 	http.HandleFunc("/contact/joincommunity", controller.JoinCommunity)
 
+	http.HandleFunc("/chat", controller.Chat)
+
 	// 提供静态资源 目录支持interceptors
 	// 第一个参数 / 代表 访问路径
 	// 第二个参数 . 代表 当前目录

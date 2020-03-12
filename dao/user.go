@@ -33,3 +33,10 @@ func (dao *UserDao) FindUserByIds(friendIds []int64) ([]model.User, error) {
 
 	return users, err
 }
+
+func (dao *UserDao) FindUserById(userId int64) (model.User, error) {
+	user := model.User{}
+	err := DbEngine.In("id", userId).Find(&user)
+
+	return user, err
+}

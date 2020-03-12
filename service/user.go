@@ -77,3 +77,8 @@ func (*UserService) Login(mobile, plainpwd string) (model.User, error) {
 
 	return userInfo, nil
 }
+
+// 通过 Id 查询 User
+func (service *UserService) FindUserById(userId int64) (model.User, error) {
+	return userDao.FindUserById(userId)
+}
